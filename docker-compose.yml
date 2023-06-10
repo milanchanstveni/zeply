@@ -1,0 +1,35 @@
+version: '3'
+services:
+  postgres_db:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: zeply
+      POSTGRES_DB: zeply
+      POSTGRES_USER: zeply
+    ports:
+      - '5400:5400'
+    expose:
+      - '5400'
+    networks:
+      - app-tier
+    volumes:
+      - ./postgres:/docker-entrypoint-initdb.d
+  
+  api1:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: api1
+    depends_on:
+      - postgres_db
+    restart: "on-failure:3"
+    networks:
+      - app-tier
+    ports: 
+      - 5000:5000
+    volumes:
+      - .:/app
+
+networks:
+  app-tier:
+    driver: bridge
